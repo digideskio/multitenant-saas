@@ -1,0 +1,45 @@
+@(title: String, formData: views.formdata.FormData, requestType : String)
+
+@import helper._
+@import views.html.bootstrap3._
+
+@main("Welcome to Mutitenant SaaS app") {
+	
+	<div class="col-md-6">
+		
+	</div>
+	
+	
+	<div class="col-md-6">
+			<div class="panel panel-default">
+			  <div class="panel-heading">
+			      <h3 class="panel-title">Department Login</h3>
+			  </div>
+			  <div class="panel-body">
+			  		@if( requestType == "login" ){
+			  			
+			  			
+				  			@for((key, value) <- formData.getFormFields()){
+				  				@if( value == "text" ){
+				  					
+				  					 <input type="@value" name="@key" /><br/>
+    
+
+    								
+			  					}
+			  					
+								@if( value == "password" ){
+				  					
+										<input type="@value" name="@key" /><br/>
+			  					}
+				  				
+
+							<button type="submit" class="btn-default btn btn-primary pull-right">Login</button>
+					    }
+			  		}
+			  		
+			    	
+			  </div>
+			</div>
+	</div>
+}
