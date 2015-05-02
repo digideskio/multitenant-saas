@@ -1,0 +1,95 @@
+@(title: String, isLoggedIn: Boolean)(content: Html)
+
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>@title</title>
+         <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
+        <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
+        <script src="@routes.Assets.at("javascripts/app.js")" type="text/javascript"></script>
+         <!-- Bootstrap imports -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+		<script src="http://code.highcharts.com/highcharts.js"></script>
+		<script src="http://code.highcharts.com/modules/exporting.js"></script>
+		<script src="@routes.Assets.at("javascripts/cloneya.js")"></script>
+		
+		<!-- End Bootstrap imports -->
+    </head>
+    <body>
+    <nav class="navbar navbar-default navbar-static-top">
+         <div class="container-fluid">
+		    <div class="navbar-header col-md-12">
+		     
+		        <ul class="nav navbar-nav col-md-12">
+		        	<li>
+		        	
+ 		  				<a class="navbar-brand" href="@if(isLoggedIn){ @routes.UserController.dashboard() }else{ / }">MultiTenant SaaS Demo</a>
+	      			</li>
+   		      		@if(isLoggedIn){
+						<li role="presentation" class="dropdown">
+						    <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-expanded="false">
+						      <li class="pull-right"><span class="glyphicon glyphicon-user"></span>  My Account <span class="caret"></span>
+						    </a>
+						    <ul class="dropdown-menu" role="menu">
+						    	
+					  			<li class=""><a href="@routes.ApplicationController.logout()">Logout</a></li>
+						    </ul>
+						</li>
+					
+   		      		}
+		        </ul>
+		      
+		    </div>
+		    
+		  </div>
+    	</nav>
+	
+	
+	<div class="@if(isLoggedIn){ container-fluid } else{ container }">
+		@if(isLoggedIn ){
+		
+			<div class="dashboard-menu">
+				<!-- DASHBOARD MENU -->
+				<ul class="list-group">
+				
+						 <li class="list-group-item">
+					  	  		<div class="main-category">
+									  <span class="glyphicon glyphicon-list-alt"></span> 
+									  	<strong>Account Management</strong>
+									  	<p class="list-group-item-text">Manage Accounts From here</p>
+							  	</div>
+							  	<div class="list-group">
+							  			
+									  <a href="@routes.ApplicationController.logout()" class="list-group-item">Logout</a>
+								</div>
+					  	  </li>
+						
+						  <li class="list-group-item">
+					  	  		<div class="main-category">
+									  <span class="glyphicon glyphicon-list-alt"></span> 
+									  	<strong>Project Management</strong>
+									  	<p class="list-group-item-text">Manage projects from here</p>
+							  	</div>
+							  	<div class="list-group">
+							  			<a href="@routes.UserController.newProject()" class="list-group-item ">New Project</a>
+									  <a href="" class="list-group-item">View Projects</a>
+								</div>
+					  	  </li>
+				      	
+				  </ul>
+			</div>
+		}
+		
+		<div class="dashboard-content @if(isLoggedIn){ full-width }">
+			<div class="col-md-12">
+				@content
+			</div>
+		</div>
+	</div>    
+        
+    </body>
+</html>

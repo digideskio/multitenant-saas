@@ -1,0 +1,86 @@
+@(title: String, isLoggedIn: Boolean, fieldDetails: HashMap[String, String])
+
+@import helper._
+@import views.html.bootstrap3._
+@import views.html.user._
+
+@backend(title, isLoggedIn) {
+
+	<h1>@title | <small>Create New Projects From here</small></h1>
+	<hr/>
+	<div id="simple-clone" class="demo-wrap">
+            <h2>New Project</h2>
+            <div class="col-md-6">
+            		
+       			<form class="form-horizontal" method="post" action="@routes.UserController.submitProject()"> 
+				<div class="project-details">
+				
+					<div class="form-group">
+					    <label class="col-sm-3 control-label">Project Name</label>
+					    <div class="col-sm-9">
+					      <input type="text" 
+					             class="form-control" 
+					             id="projectName" 
+					             name="projectName" 
+					             placeholder="Project's Name" />
+					      </div>
+					  </div>
+				
+					<div class="form-group">
+					    <label class="col-sm-3 control-label">Project Description</label>
+					    <div class="col-sm-9">
+					      <input type="text" 
+					             class="form-control" 
+					             id="projectDescription" 
+					             name="projectDescription" 
+					             placeholder="Project's Description" />
+					      </div>
+					  </div>
+				</div>
+                <div class="toclone">
+                	<h2>Task</h2>
+                	@for( (fieldName, fieldType) <- fieldDetails ){
+                	
+                			@if( fieldType.split(",").length > 1 ){
+              		   			<div class="form-group">
+								    <label class="col-sm-3 control-label">@fieldName</label>
+								    <div class="col-sm-9">
+	              		   			<select class="form-control" id="@{fieldName}" name="@{fieldName}[]">
+								        @for( values <-fieldType.split(",") ) {
+								          <option id="@values" value="@values">@values</option>
+								        }
+								      </select>
+							      </div>
+						      </div>
+              		   				
+              		   		}else{
+                				<div class="form-group">
+								    <label class="col-sm-3 control-label">@fieldName</label>
+								    <div class="col-sm-9">
+					    	            <input type="@fieldType" class="form-control" name="@{fieldName}[]" id="@fieldName" />
+								    </div>
+							    </div>
+              		   		}
+		                	 
+	                }
+                    
+
+                    <a href="#" class="clone btn btn-default">New task</a>
+                    <a href="#" class="delete">Delete Task</a>
+                </div>
+				
+				<button type="submit" class="btn btn-primary pull-right">Create New Project</button>
+
+            </form>
+            	
+            </div>
+            
+        </div>
+        
+        <script type="text/javascript">
+        	jQuery('#simple-clone').cloneya();
+        	
+        	jQuery();
+        </script>
+	
+}
