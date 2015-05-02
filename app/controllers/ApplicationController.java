@@ -7,6 +7,7 @@ import modules.Utilities;
 
 import org.json.JSONObject;
 
+import play.Play;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.libs.ws.WS;
@@ -22,10 +23,9 @@ import com.mashape.unirest.http.Unirest;
 
 public class ApplicationController extends Controller {
 
+	private static final String serverUrl = Play.application().configuration().getString("multitenant.server");
 	
-	WSRequestHolder holder = WS.url("http://192.168.0.36:8080/");
-	
-    public static Result index() {
+	public static Result index() {
     	return ok(views.html.index
         		.render("Welcome to Multitenant SaaS demo"));
     }
@@ -52,7 +52,7 @@ public class ApplicationController extends Controller {
     	if( email.length() > 0 && password.length() > 0 && email != null && password != null){
     		try {
     			String jsonBody = "{ email: \""+email+"\" ,  password: \"" + Utilities.getMD5Hash(password) +"\" }";
-				HttpResponse<JsonNode> response = Unirest.post("http://192.168.0.36:8080/user/authenticate")
+				HttpResponse<JsonNode> response = Unirest.post(serverUrl+"/user/authenticate")
 						  .header("accept", "application/json")
 						  .body(jsonBody)
 						  .asJson();
@@ -66,6 +66,7 @@ public class ApplicationController extends Controller {
 				session().clear();
 				if( user!= null ){
 					session("userId", String.valueOf(user.getUserId()));
+					session("preference", String.valueOf(user.getPreference()));
 					return redirect(routes.UserController.dashboard());
 				}
 				
@@ -92,13 +93,14 @@ public class ApplicationController extends Controller {
     	String password = registerForm.get("password");
     	String rePassword = registerForm.get("rePassword");
     	String name = registerForm.get("name");
+    	String preference = registerForm.get("preference");
     	String message = "";
     	if( email.length() > 0 && email!= null && password.length() > 0 && password!= null && rePassword.length() > 0 && rePassword!= null && name.length() > 0 && name != null ){
     		if( password.equals(rePassword) ){
     			HttpResponse<JsonNode> response;
-    			String jsonBody = "{ email: \""+email+"\" , name: \""+ name +"\" , password: \"" + Utilities.getMD5Hash(password) +"\" , preference:\"2\"  }";
+    			String jsonBody = "{ email: \""+email+"\" , name: \""+ name +"\" , password: \"" + Utilities.getMD5Hash(password) +"\" , preference:\""+ preference +"\"  }";
 				try {
-					response = Unirest.post("http://192.168.0.36:8080/user/register")
+					response = Unirest.post(serverUrl+"/user/register")
 						  .header("accept", "application/json")
 						  .body(jsonBody)
 						  .asJson();
@@ -106,8 +108,17 @@ public class ApplicationController extends Controller {
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+					return ok(views.html.thanks
+	  						.render("Some Problem", true));
 				}
-	  			return ok(message);
+	  			if( message.equals("Success") ){
+	  				return ok(views.html.thanks
+	  						.render("Registration Complete", false));
+	  			}else{
+	  				return ok(views.html.thanks
+	  						.render("Some Problem", true));
+	  			}
+	  			
     		}
     		
     	}
@@ -122,6 +133,10 @@ public class ApplicationController extends Controller {
     public static Result logout(){
     	session().clear();
     	return redirect(routes.ApplicationController.index());
+    }
+    
+    public static Result thanks(){
+    	return ok();
     }
 
 }

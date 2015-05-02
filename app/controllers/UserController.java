@@ -6,8 +6,10 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
+import play.Play;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.mvc.Controller;
@@ -22,6 +24,8 @@ import controllers.security.SecuredUser;
 
 public class UserController extends Controller{
 	
+	private static final String serverUrl = Play.application().configuration().getString("multitenant.server");
+	
 	@Security.Authenticated(SecuredUser.class)
 	public static Result dashboard(){
 		
@@ -34,9 +38,9 @@ public class UserController extends Controller{
 	@Security.Authenticated(SecuredUser.class)
 	public static Result newProject(){
 		HashMap<String,String> fieldDetails = new HashMap<String,String>();
-				
+				int preference = Integer.parseInt(session("preference"));
 				try {
-					HttpResponse<JsonNode> response = Unirest.get("http://192.168.0.36:8080/user/addproject/?preference_id=2")
+					HttpResponse<JsonNode> response = Unirest.get(serverUrl+"/user/addproject/?preference_id=2")
 							  .asJson();
 					
 					JSONObject jsonObj = response.getBody().getObject();
@@ -50,8 +54,21 @@ public class UserController extends Controller{
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+				String activityName = "";
+				switch(preference){
+					case 1:
+						activityName = "Task";
+						break;
+					case 2:
+						activityName = "Sprint";
+						break;
+						
+					case 3:
+						activityName = "XYZ";
+						break;
+				}
 		return ok(views.html.user.project.newProject
-				.render("Create New Project", SecuredUser.isLoggedIn(ctx()), fieldDetails));
+				.render("Create New Project", SecuredUser.isLoggedIn(ctx()), fieldDetails, activityName));
 	}
 	
 	 
@@ -113,7 +130,7 @@ public class UserController extends Controller{
 				+ "}";
 		HttpResponse<JsonNode> response = null;
 		String message = "";
-		String url = "http://192.168.0.36:8080/project/new/?project_id="+projectId+"&&user_id=" + session("userId");
+		String url = serverUrl+"/project/new/?project_id="+projectId+"&&user_id=" + session("userId");
 		System.out.println(url);
 		try {
 			response = Unirest.post(url)
@@ -131,10 +148,62 @@ public class UserController extends Controller{
 	}
 	
 	@Security.Authenticated(SecuredUser.class)
-	public Static Result allProjects(){
+	public static Result allProjects(){
+		HttpResponse<JsonNode> response = null;
+		String url = serverUrl+"/projects/?user_id=" + session("userId");
+		try {
+			response = Unirest.get(url)
+				  .header("accept", "application/json")
+				  .asJson();
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
-		return ok();
+		JSONObject jsonObj = response.getBody().getObject();
+		JSONArray projectArray = null;
 		
+		HashMap<String, String> projectMap = new HashMap<String,String>();
+		int count = 0;
+		try {
+			projectArray = jsonObj.getJSONArray("projectDetails");
+			count = projectArray.length();
+			for( int i = 0; i < count; i++ ){
+				JSONObject project = (JSONObject) projectArray.get(i);
+				String projectName = project.getString("name");
+				String projectId = project.getString("project_id");
+				projectMap.put(projectId, projectName);
+			} 
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return ok(views.html.user.project.all
+				.render("All Projects", SecuredUser.isLoggedIn(ctx()), projectMap));
+	}
+	
+	@Security.Authenticated(SecuredUser.class)
+	public static Result editProject(String projectId){
+		HttpResponse<JsonNode> response = null;
+		String url = serverUrl+"/project/edit";
+		try {
+			response = Unirest.post(url)
+				  .header("accept", "application/json")
+				  .field("user_id", session("userId"))
+				  .field("project_id", projectId)
+				  .asJson();
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		
+		return ok(response.getStatusText().toString());
 	}
 	
 	private static String generateUniqueId() {

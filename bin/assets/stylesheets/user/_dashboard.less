@@ -1,0 +1,150 @@
+html{ min-height: 100%; position: relative; }
+
+.dashboard-menu{
+	position: absolute;
+	left: 0;
+	top: 50px;
+	max-width: 220px;
+	width: 100%;
+	background-color: #243743;
+	height: 100%;
+	color: #FAFAFA;
+	.list-group{
+		margin: 0;
+		cursor: pointer;
+	}
+	
+	.list-group-item-text{
+		font-size: 11px;
+		color: #C5D0C1;
+		padding-left: 29px;
+		font-style: italic;
+		padding-right: 10px;
+		margin-bottom: 7px;
+	}
+	
+	.list-group-item{
+		padding-bottom: 10px;
+		padding-left: 0;
+		padding-right: 0;
+		border: 0;
+		background-color: #243743;
+		font-size: 13px;
+		color: #FAFAFA;
+		.list-group-item{
+			padding-left: 29px;
+			font-style: italic;
+			font-size: 12px;
+		}
+		
+		.glyphicon{
+			margin-left: 10px;
+			margin-right: 5px;
+		}
+		
+		
+		&:first-child{
+			padding-top: 10px;
+			border-radius: 0 0 0 0;
+		}
+		&:last-child{
+			border-radius: 0 0 0 0;
+		}
+		
+	}
+}
+
+.full-width{
+
+	h1, h2{
+		font-weight: lighter;
+	}
+	
+	
+	margin-left: 220px;
+	
+	.department{
+	
+		.panel{
+			background-color: #BFCFCC;
+			color: white;
+		}
+		
+		.panel-footer{
+			color: black;
+		}
+		
+		.glyphicon{
+			top: 20%;
+			position: absolute;
+			font-size: 35px;
+		}
+	}
+	
+}
+
+.all-department{
+    thead{
+		background-color: #f3f3f3;
+		th{
+			text-align: center;
+		}	
+	}
+}
+
+.dashboard-content{
+	h1,h2,h3,h4{
+		color: #485C5A;
+	}
+
+	.department-summary{
+		margin-top: 25px;
+	}
+	
+	.table>tbody>tr>td, .table>thead>tr>th{ vertical-align: middle; text-align: center; }
+}
+
+.lol{ display: none; }
+
+.log-container{
+	ul{ list-style: none; 
+		li{  
+			font-size: 11px;
+			font-style: italic;
+			margin-bottom: 10px;
+			.log-activity, .log-user, .log-date{
+				font-weight: 600;
+			}
+		}
+	}
+}
+
+.table>tr>td{ vertical-align: middle; }
+.table>tbody>tr>td{ vertical-align: middle; text-align: center; }
+
+.customer-product{
+	.product{
+		color: white;
+		background-color: #2980B9;
+		padding: 20px;
+		position: relative;
+		width: 100%;
+		height: 100%;
+		overflow: hidden;
+		float: left;
+		text-decoration: none;
+    	transition: background .25s ease-in-out;
+	    -moz-transition: background .25s ease-in-out;
+	    -webkit-transition: background .25s ease-in-out;
+		 &:hover{
+		  	background-color: #29808F;
+		}
+		
+		h2{ font-weight: lighter; color: white; }
+		h3{ color: white; }
+	}
+}
+
+.emp-login{
+	margin-top: 8px;
+}
