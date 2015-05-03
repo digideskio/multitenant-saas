@@ -1,4 +1,4 @@
-@(title: String, isLoggedIn: Boolean, fieldDetails: HashMap[String, String], preference: String)
+@(title: String, isLoggedIn: Boolean, projectMap: HashMap[String, String], taskList: List[HashMap[String, String]], fieldMap: HashMap[String,String], preference: String)
 
 @import helper._
 @import views.html.bootstrap3._
@@ -6,13 +6,13 @@
 
 @backend(title, isLoggedIn) {
 
-	<h1>@title | <small>Create New Projects From here</small></h1>
+	<h1>@title | <small>View/Update Projects From here</small></h1>
 	<hr/>
-	<div id="simple-clone" class="demo-wrap">
-            <h2>New Project</h2>
-            <div class="col-md-6">
+	
+	
+	<div class="col-md-6 demo-wrap" id="simple-clone">
             		
-       			<form class="form-horizontal" method="post" action="@routes.UserController.submitProject()"> 
+       			<form class="form-horizontal" method="post" action="@routes.UserController.updateProject(projectMap.get("Project ID"))"> 
 				<div class="project-details">
 				
 					<div class="form-group">
@@ -22,6 +22,7 @@
 					             class="form-control" 
 					             id="projectName" 
 					             name="projectName" 
+					             value="@projectMap.get("Project Name")"
 					             placeholder="Project's Name" />
 					      </div>
 					  </div>
@@ -33,57 +34,118 @@
 					             class="form-control" 
 					             id="projectDescription" 
 					             name="projectDescription" 
+					             value="@projectMap.get("Project Description")"
 					             placeholder="Project's Description" />
 					      </div>
 					  </div>
 				</div>
-                <div class="toclone">
-                	<h2>@preference</h2>
-                	@for( (fieldName, fieldType) <- fieldDetails ){
-                	
-                			@if( fieldType.split(",").length > 1 ){
-              		   			<div class="form-group">
-								    <label class="col-sm-3 control-label">@fieldName</label>
-								    <div class="col-sm-9">
-	              		   			<select class="form-control" id="@{fieldName}" name="@{fieldName}[]">
-								        @for( values <-fieldType.split(",") ) {
-								          <option id="@values" value="@values">@values</option>
-								        }
-								      </select>
+        		
+       			@for(task <- taskList){
+			
+						<div class="toclone">
+	                	<h2>@preference</h2>
+	                	@for( (fieldName, fieldType) <- fieldMap ){
+	                	
+	                			@if( fieldType.split(",").length > 1 ){
+	              		   			<div class="form-group">
+									    <label class="col-sm-3 control-label">@fieldName</label>
+									    <div class="col-sm-9">
+		              		   			<select class="form-control" id="@{fieldName}" name="@{fieldName}[]">
+									        @for( values <-fieldType.split(",") ) {
+									          <option id="@values" value="@values" @if(task.get(fieldName)==values){ selected }>@values</option>
+									        }
+									      </select>
+								      </div>
 							      </div>
-						      </div>
-              		   				
-              		   		}else{
-                				<div class="form-group">
-								    <label class="col-sm-3 control-label">@fieldName</label>
-								    <div class="col-sm-9">
-					    	            <input type="@fieldType" class="form-control" name="@{fieldName}[]" id="@fieldName" />
+	              		   				
+	              		   		}else{
+	                				<div class="form-group">
+									    <label class="col-sm-3 control-label">@fieldName</label>
+									    <div class="col-sm-9">
+						    	            <input type="@fieldType" class="form-control" name="@{fieldName}[]" id="@fieldName" value="@task.get(fieldName)"/>
+									    </div>
 								    </div>
-							    </div>
-              		   		}
-		                	 
-	                }
-                    
-
-                    <a href="#" class="clone btn btn-default">
-                    
-                    New @preference
-                    </a>
-                    <a href="#" class="delete">Delete @preference</a>
-                </div>
+	              		   		}
+			                	 
+		                }
+		                <a href="#" class="clone btn btn-default">
+	                    
+	                    New @preference
+	                    </a>
+	                    <a href="#" class="delete">Delete @preference</a>
+	        		
+	        		</div>
 				
-				<button type="submit" class="btn btn-primary pull-right">Create New Project</button>
+				}        
+				
+				<button type="submit" class="btn btn-primary pull-right">Update Project</button>
 
             </form>
-            	
-            </div>
-            
-        </div>
+		
+		</div>
+		
+		<div id="pie-container" class="col-md-6" style="min-width: 310px; height: 400px; max-width: 600px; margin: 0 auto"></div>
         
         <script type="text/javascript">
-        	jQuery('#simple-clone').cloneya();
+        	jQuery(document).ready(function(){
+        		jQuery('#simple-clone').cloneya();
+        		populatePieChart();
+        	});
         	
-        	jQuery();
+        	function populatePieChart(){
+        		// Radialize the colors
+        	    Highcharts.getOptions().colors = Highcharts.map(Highcharts.getOptions().colors, function (color) {
+        	        return {
+        	            radialGradient: { cx: 0.5, cy: 0.3, r: 0.7 },
+        	            stops: [
+        	                [0, color],
+        	                [1, Highcharts.Color(color).brighten(-0.3).get('rgb')] // darken
+        	            ]
+        	        };
+        	    });
+
+        	    // Build the chart
+        	    $('#pie-container').highcharts({
+        	        chart: {
+        	            plotBackgroundColor: null,
+        	            plotBorderWidth: null,
+        	            plotShadow: false
+        	        },
+        	        title: {
+        	            text: 'Browser market shares at a specific website, 2014'
+        	        },
+        	        tooltip: {
+        	            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+        	        },
+        	        plotOptions: {
+        	            pie: {
+        	                allowPointSelect: true,
+        	                cursor: 'pointer',
+        	                dataLabels: {
+        	                    enabled: true,
+        	                    format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+        	                    style: {
+        	                        color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+        	                    },
+        	                    connectorColor: 'silver'
+        	                }
+        	            }
+        	        },
+        	        series: [{
+        	            type: 'pie',
+        	            name: 'Browser share',
+        	            data: [
+        	                 ['Firefox',   45.0],
+        	                ['Safari',    8.5],
+        	                ['Opera',     6.2],
+        	                ['Others',   0.7]
+        	            ]
+        	        }]
+        	    });
+        	}
+        	
+        	
+        	
         </script>
 	
 }

@@ -29,56 +29,9 @@ public class ApplicationController extends Controller {
     	return ok(views.html.index
         		.render("Welcome to Multitenant SaaS demo"));
     }
+  
+	//authenticate user
     
-    public static Result login(){
-    	FormData formData = new FormData();
-    	String requestType = "login";
-    	HashMap<String, String> formFields =  new HashMap<String, String>();
-    	formFields.put("username", "text");
-    	formFields.put("password", "password");
-    	formData.setFormFields(formFields);
-    	return ok(views.html.login
-    			.render("My App", formData, requestType));
-	}
-
-    //authenticate user
-    public static Result authenticate(){
-    	DynamicForm dynamicForm = Form.form().bindFromRequest();
-    	String email = dynamicForm.get("email");
-    	String password = dynamicForm.get("password");
-    	String message = "";
-    	String userId = "";
-    	User user = null;
-    	if( email.length() > 0 && password.length() > 0 && email != null && password != null){
-    		try {
-    			String jsonBody = "{ email: \""+email+"\" ,  password: \"" + Utilities.getMD5Hash(password) +"\" }";
-				HttpResponse<JsonNode> response = Unirest.post(serverUrl+"/user/authenticate")
-						  .header("accept", "application/json")
-						  .body(jsonBody)
-						  .asJson();
-				
-				JSONObject jsonObj = response.getBody().getObject();
-				user = new User();
-				user.setUserId(jsonObj.getInt("id"));
-				user.setEmail(jsonObj.getString("email").toString());
-				user.setName(jsonObj.getString("name").toString());
-				user.setPreference(jsonObj.getInt("preference"));
-				session().clear();
-				if( user!= null ){
-					session("userId", String.valueOf(user.getUserId()));
-					session("preference", String.valueOf(user.getPreference()));
-					return redirect(routes.UserController.dashboard());
-				}
-				
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-    		return ok();
-    	}
-    	return ok("ok");
-    }
     
     //register
     public static Result register(){
