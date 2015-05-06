@@ -88,8 +88,8 @@
 				
 				}        
 				
-				<button type="submit" class="btn btn-primary pull-right">Update Project</button>
-
+				<button type="submit" id="submitButton" class="btn btn-primary pull-right">Update Project</button>
+				<input type="text" hidden  readonly name="taskCount" value="1" id="taskCount"/>
             </form>
 		
 		</div>
@@ -101,11 +101,27 @@
         
         <script type="text/javascript">
         	jQuery(document).ready(function(){
-        		jQuery('#simple-clone').cloneya();
         		
-        		@for( i <- 1 to chartList.size()){
-        			populatePieChart_@{i}();	 
-              	}
+        		jQuery('#taskCount').val(jQuery('.toclone').length);
+        		
+        		jQuery('#simple-clone').cloneya().on('after_clone.cloneya', function (event, toclone, newclone) {
+        		
+            		jQuery('#taskCount').val(parseInt(jQuery('#taskCount').val()) + 1);
+            	 	
+            }).on('after_delete.cloneya', function () {
+            	if( parseInt(jQuery('#taskCount').val()) > 1 ){
+            		jQuery('#taskCount').val(parseInt(jQuery('#taskCount').val()) - 1);	
+            	}
+            	
+            });
+        		
+        	jQuery('#submitButton').click(function(){
+        		jQuery('#taskCount').val(jQuery('.toclone').length);
+        	});
+        		
+       		@for( i <- 1 to chartList.size()){
+       			populatePieChart_@{i}();	 
+             	}
         		
         	});
         	@chartList.size()

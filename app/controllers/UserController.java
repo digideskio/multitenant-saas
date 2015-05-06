@@ -1,6 +1,7 @@
 package controllers;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -93,55 +94,59 @@ public class UserController extends Controller{
 		DynamicForm projectForm = Form.form().bindFromRequest();
 		Collection<Entry<String, String[]>> taskForm = request().body().asFormUrlEncoded().entrySet();
 		Iterator<String[]> itrValue=request().body().asFormUrlEncoded().values().iterator();
+		int taskCount = Integer.parseInt(projectForm.get("taskCount"));
+		
 		String projectId = generateUniqueId();
 		String jsonBody = "{ \"project_id\": \""+ projectId +"\" , \"name\": \""+ projectForm.get("projectName")  +"\", "
 				+ "\"description\": \""+projectForm.get("projectDescription")+"\"," 
 						+ "\"tasks\":[";
-		Iterator<String[]> test=request().body().asFormUrlEncoded().values().iterator();
-		String[] te=test.next();
-		int n = te.length;
-
 		
-		for(int pass=0;pass<=n;pass++)
+		for(int pass=0;pass<taskCount;pass++)
 		{
 			jsonBody=jsonBody + "{";
 			Iterator<String> itrKey=request().body().asFormUrlEncoded().keySet().iterator();
-
 			Iterator<String[]> innerItrValue=request().body().asFormUrlEncoded().values().iterator();
 			int counter=0;
 			int max=request().body().asFormUrlEncoded().values().size();
 			while(innerItrValue.hasNext())
 			{	
 				String key=itrKey.next();
+				
 				key=key.replace("[", "");
 				key=key.replace("]", "");
-				if( !key.equals("projectName") && !key.equals("projectDescription")){
+				
+				if( !key.equals("projectName") && !key.equals("projectDescription") && !key.equals("taskCount")){
 					jsonBody=jsonBody+"\""+key+"\":";
 				}
 				String[] values=innerItrValue.next();
-				if( !key.equals("projectName") && !key.equals("projectDescription")){
-					if(counter==max-1)
+				
+				if( !key.equals("projectName") && !key.equals("projectDescription") && !key.equals("taskCount")){
+					
+					if(counter==max-2)
 					{
 						jsonBody=jsonBody+"\""+values[pass]+"\"";
 					}
 					else
 					{
 						jsonBody=jsonBody+"\""+values[pass]+"\",";
-
 					}
+					
 				}
 				counter++;
 			}
-			if(pass==n)
-			jsonBody=jsonBody + "}";
-			else
-			jsonBody=jsonBody + "},";
-
+			
+			if(pass==(taskCount-1)){
+				jsonBody=jsonBody + "}";
+			}	
+			else{
+				jsonBody=jsonBody + "},";
+			}	
 
 		}
 				
 		jsonBody = jsonBody + "]"
 				+ "}";
+		System.out.println(jsonBody);
 		HttpResponse<JsonNode> response = null;
 		String message = "";
 		String url = serverUrl+"/project/new/?project_id="+projectId+"&&user_id=" + session("userId");
@@ -275,31 +280,33 @@ public class UserController extends Controller{
 		DynamicForm projectForm = Form.form().bindFromRequest();
 		Collection<Entry<String, String[]>> taskForm = request().body().asFormUrlEncoded().entrySet();
 		Iterator<String[]> itrValue=request().body().asFormUrlEncoded().values().iterator();
+		int taskCount = Integer.parseInt(projectForm.get("taskCount"));
 		String jsonBody = "{ \"project_id\": \""+ projectId +"\" , \"name\": \""+ projectForm.get("projectName")  +"\", "
 				+ "\"description\": \""+projectForm.get("projectDescription")+"\"," 
 						+ "\"tasks\":[";
-		Iterator<String[]> test=request().body().asFormUrlEncoded().values().iterator();
-		String[] te=test.next();
-		int n = te.length;
-		for(int pass=0;pass<=n;pass++)
+		
+		for(int pass=0;pass<taskCount;pass++)
 		{
 			jsonBody=jsonBody + "{";
 			Iterator<String> itrKey=request().body().asFormUrlEncoded().keySet().iterator();
-
 			Iterator<String[]> innerItrValue=request().body().asFormUrlEncoded().values().iterator();
 			int counter=0;
 			int max=request().body().asFormUrlEncoded().values().size();
 			while(innerItrValue.hasNext())
 			{	
 				String key=itrKey.next();
+				
 				key=key.replace("[", "");
 				key=key.replace("]", "");
-				if( !key.equals("projectName") && !key.equals("projectDescription")){
+				
+				if( !key.equals("projectName") && !key.equals("projectDescription") && !key.equals("taskCount")){
 					jsonBody=jsonBody+"\""+key+"\":";
 				}
 				String[] values=innerItrValue.next();
-				if( !key.equals("projectName") && !key.equals("projectDescription")){
-					if(counter==max-1)
+				
+				if( !key.equals("projectName") && !key.equals("projectDescription") && !key.equals("taskCount")){
+					
+					if(counter==max-2)
 					{
 						jsonBody=jsonBody+"\""+values[pass]+"\"";
 					}
@@ -307,18 +314,23 @@ public class UserController extends Controller{
 					{
 						jsonBody=jsonBody+"\""+values[pass]+"\",";
 					}
+					
 				}
 				counter++;
-							
 			}
-			if(pass==n)
+			
+			if(pass==(taskCount-1)){
 				jsonBody=jsonBody + "}";
-			else
+			}	
+			else{
 				jsonBody=jsonBody + "},";
+			}	
+
 		}
 				
 		jsonBody = jsonBody + "]"
 				+ "}";
+		System.out.println("UPDATE: " + jsonBody);
 		HttpResponse<JsonNode> response = null;
 		String message = "";
 		String url = serverUrl+"/project/edit/?project_id="+projectId+"&&user_id=" + session("userId");
@@ -333,7 +345,8 @@ public class UserController extends Controller{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return redirect(routes.UserController.allProjects());
+		
+		return redirect(routes.UserController.editProject(projectId));
 	}
 	
 	
