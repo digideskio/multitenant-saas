@@ -1,4 +1,4 @@
-@(title: String, isLoggedIn: Boolean, projectMap: HashMap[String, String], taskList: List[HashMap[String, String]], fieldMap: HashMap[String,String], preference: String)
+@(title: String, isLoggedIn: Boolean, projectMap: HashMap[String, String], taskList: List[HashMap[String, String]], fieldMap: HashMap[String,String], preference: String, chartList: List[HashMap[String,String]])
 
 @import helper._
 @import views.html.bootstrap3._
@@ -68,6 +68,16 @@
 	              		   		}
 			                	 
 		                }
+		                
+		                @if(preference.equals("Sprint")){
+		                	<div class="form-group">
+							    <label class="col-sm-3 control-label">Number of Days for Completion</label>
+							    <div class="col-sm-9">
+				    	           <h2>	@{task.get("HoursEstimated").toInt/task.get("EstimatedDailyHours").toInt}</h2> 
+							    </div>
+						    </div>
+		                }
+		                
 		                <a href="#" class="clone btn btn-default">
 	                    
 	                    New @preference
@@ -84,65 +94,78 @@
 		
 		</div>
 		
-		<div id="pie-container" class="col-md-6" style="min-width: 310px; height: 400px; max-width: 600px; margin: 0 auto"></div>
+		@for( i <- 1 to chartList.size()){
+        	<div id="pie-container-@i" class="col-md-6" style="min-width: 310px; height: 400px; max-width: 600px; margin: 0 auto"></div>	 
+      	}
+		
         
         <script type="text/javascript">
         	jQuery(document).ready(function(){
         		jQuery('#simple-clone').cloneya();
-        		populatePieChart();
+        		
+        		@for( i <- 1 to chartList.size()){
+        			populatePieChart_@{i}();	 
+              	}
+        		
         	});
-        	
-        	function populatePieChart(){
-        		// Radialize the colors
-        	    Highcharts.getOptions().colors = Highcharts.map(Highcharts.getOptions().colors, function (color) {
-        	        return {
-        	            radialGradient: { cx: 0.5, cy: 0.3, r: 0.7 },
-        	            stops: [
-        	                [0, color],
-        	                [1, Highcharts.Color(color).brighten(-0.3).get('rgb')] // darken
-        	            ]
-        	        };
-        	    });
+        	@chartList.size()
+        	@for( i <- 1 to chartList.size()){
+        		
+        		function populatePieChart_@{i}(){
+            		// Radialize the colors
+            	    Highcharts.getOptions().colors = Highcharts.map(Highcharts.getOptions().colors, function (color) {
+            	        return {
+            	            radialGradient: { cx: 0.5, cy: 0.3, r: 0.7 },
+            	            stops: [
+            	                [0, color],
+            	                [1, Highcharts.Color(color).brighten(-0.3).get('rgb')] // darken
+            	            ]
+            	        };
+            	    });
 
-        	    // Build the chart
-        	    $('#pie-container').highcharts({
-        	        chart: {
-        	            plotBackgroundColor: null,
-        	            plotBorderWidth: null,
-        	            plotShadow: false
-        	        },
-        	        title: {
-        	            text: 'Browser market shares at a specific website, 2014'
-        	        },
-        	        tooltip: {
-        	            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-        	        },
-        	        plotOptions: {
-        	            pie: {
-        	                allowPointSelect: true,
-        	                cursor: 'pointer',
-        	                dataLabels: {
-        	                    enabled: true,
-        	                    format: '<b>{point.name}</b>: {point.percentage:.1f} %',
-        	                    style: {
-        	                        color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
-        	                    },
-        	                    connectorColor: 'silver'
-        	                }
-        	            }
-        	        },
-        	        series: [{
-        	            type: 'pie',
-        	            name: 'Browser share',
-        	            data: [
-        	                 ['Firefox',   45.0],
-        	                ['Safari',    8.5],
-        	                ['Opera',     6.2],
-        	                ['Others',   0.7]
-        	            ]
-        	        }]
-        	    });
-        	}
+            	    // Build the chart
+            	    $('#pie-container-@i').highcharts({
+            	        chart: {
+            	            plotBackgroundColor: null,
+            	            plotBorderWidth: null,
+            	            plotShadow: false
+            	        },
+            	        title: {
+            	            text: 'Project Status'
+            	        },
+            	        tooltip: {
+            	            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+            	        },
+            	        plotOptions: {
+            	            pie: {
+            	                allowPointSelect: true,
+            	                cursor: 'pointer',
+            	                dataLabels: {
+            	                    enabled: true,
+            	                    format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+            	                    style: {
+            	                        color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+            	                    },
+            	                    connectorColor: 'silver'
+            	                }
+            	            }
+            	        },
+            	        series: [{
+            	            type: 'pie',
+            	            name: 'Project Status',
+            	            data: [
+            	                   
+            	                   @for(( chartKey, chartValue ) <- chartList.get(i-1)){
+            	                	   ['@chartKey',   @chartValue],		   
+            	                   }
+            	            ]
+            	        }]
+            	    });
+            	} 
+        		
+          	}
+        	
+        	
         	
         	
         	

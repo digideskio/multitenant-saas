@@ -20,7 +20,6 @@ import play.data.Form;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.Security;
-import sun.reflect.generics.visitor.Reifier;
 
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
@@ -66,9 +65,9 @@ public class UserController extends Controller{
 				e.printStackTrace();
 			}
 
-    		return ok();
+    		return redirect(routes.ApplicationController.index());
     	}
-    	return ok("ok");
+    	return redirect(routes.ApplicationController.index());
     }
 	
 	//render dashboard page
@@ -167,6 +166,7 @@ public class UserController extends Controller{
 	public static Result allProjects(){
 		HttpResponse<JsonNode> response = null;
 		String url = serverUrl+"/projects/?user_id=" + session("userId");
+	
 		try {
 			response = Unirest.get(url)
 				  .header("accept", "application/json")
@@ -227,6 +227,34 @@ public class UserController extends Controller{
 		projectMap.put("Project Description", project.getString("description"));
 		projectMap.put("Project ID",project.getString("project_id"));
 		
+		response = null;
+		url = serverUrl+"/project/status/?user_id="+session("userId")+"&&project_id="+projectId + "&&preference_id=" + session("preference");
+		System.out.println(url);
+		try {
+			response = Unirest.get(url)
+				  .header("accept", "application/json")
+				  .asJson();
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		List<HashMap<String,String>> chartList = new ArrayList<HashMap<String,String>>();
+		JSONArray chartArray = response.getBody().getArray();
+		for( int i = 0; i < chartArray.length(); i++ ){
+			HashMap<String,String> chartMap = new HashMap<String,String>();
+			JSONObject chartObject = chartArray.getJSONObject(i);
+			System.out.println(chartObject.toString());
+			Iterator<String> it = chartObject.keys();
+			while(it.hasNext()){
+				String key = it.next();
+				String value = String.valueOf(chartObject.get(key));
+				chartMap.put(key, value);
+			}
+			chartList.add(chartMap);
+		}
+		
 		
 		List<HashMap<String,String>> taskList = new ArrayList<HashMap<String,String>>();
 		JSONArray taskArray = project.getJSONArray("tasks");
@@ -244,7 +272,7 @@ public class UserController extends Controller{
 		}
 		
 		return ok(views.html.user.project.edit
-				.render("View Project", SecuredUser.isLoggedIn(ctx()),projectMap, taskList, fieldDetails, activityName));
+				.render("View Project", SecuredUser.isLoggedIn(ctx()),projectMap, taskList, fieldDetails, activityName, chartList));
 	}
 	
 	//update project
@@ -283,18 +311,15 @@ public class UserController extends Controller{
 					else
 					{
 						jsonBody=jsonBody+"\""+values[pass]+"\",";
-
 					}
 				}
 				counter++;
 							
 			}
 			if(pass==n)
-			jsonBody=jsonBody + "}";
+				jsonBody=jsonBody + "}";
 			else
-			jsonBody=jsonBody + "},";
-
-
+				jsonBody=jsonBody + "},";
 		}
 				
 		jsonBody = jsonBody + "]"
@@ -326,12 +351,13 @@ public class UserController extends Controller{
 	private static HashMap<String,String> getFieldMap(){
 		HashMap<String,String> fieldDetails = new HashMap<String,String>();
 		int preference = Integer.parseInt(session("preference"));
+		
+		HttpResponse<JsonNode> response = null;
 		try {
-			HttpResponse<JsonNode> response = Unirest.get(serverUrl+"/user/addproject/?preference_id=2")
+			response = Unirest.get(serverUrl+"/user/addproject/?preference_id="+session("preference"))
 					  .asJson();
 			JSONObject jsonObj = response.getBody().getObject();
 			Iterator<?> keys = jsonObj.keys();
-			
 			while( keys.hasNext() ) {
 			    String key = (String)keys.next();
 			    fieldDetails.put(key, jsonObj.getString(key));
