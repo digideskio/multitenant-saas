@@ -48,7 +48,8 @@ public class ApplicationController extends Controller {
     	String name = registerForm.get("name");
     	String preference = registerForm.get("preference");
     	String message = "";
-    	if( email.length() > 0 && email!= null && password.length() > 0 && password!= null && rePassword.length() > 0 && rePassword!= null && name.length() > 0 && name != null ){
+    	if( email.length() > 0 && email!= null && password.length() > 0 && password!= null && rePassword.length() > 0 && rePassword!= null 
+    			&& name.length() > 0 && name != null ){
     		if( password.equals(rePassword) ){
     			HttpResponse<JsonNode> response;
     			String jsonBody = "{ email: \""+email+"\" , name: \""+ name +"\" , password: \"" + Utilities.getMD5Hash(password) +"\" , preference:\""+ preference +"\"  }";

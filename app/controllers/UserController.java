@@ -131,7 +131,6 @@ public class UserController extends Controller{
 					}
 				}
 				counter++;
-							
 			}
 			if(pass==n)
 			jsonBody=jsonBody + "}";
@@ -207,7 +206,6 @@ public class UserController extends Controller{
 		HashMap<String,String> fieldDetails = getFieldMap();
 		String activityName = getActivityName();
 		HashMap<String, Integer> activitChartMap = new HashMap<String, Integer>();
-		
 		HttpResponse<JsonNode> response = null;
 		int preference = Integer.parseInt(session("preference"));
 		String url = serverUrl+"/project/?user_id="+session("userId")+"&&project_id="+projectId;
@@ -215,7 +213,6 @@ public class UserController extends Controller{
 			response = Unirest.get(url)
 				  .header("accept", "application/json")
 				  .asJson();
-			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -226,7 +223,6 @@ public class UserController extends Controller{
 		projectMap.put("Project Name", project.getString("name"));
 		projectMap.put("Project Description", project.getString("description"));
 		projectMap.put("Project ID",project.getString("project_id"));
-		
 		response = null;
 		url = serverUrl+"/project/status/?user_id="+session("userId")+"&&project_id="+projectId + "&&preference_id=" + session("preference");
 		System.out.println(url);
@@ -234,28 +230,27 @@ public class UserController extends Controller{
 			response = Unirest.get(url)
 				  .header("accept", "application/json")
 				  .asJson();
-			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
 		List<HashMap<String,String>> chartList = new ArrayList<HashMap<String,String>>();
-		JSONArray chartArray = response.getBody().getArray();
-		for( int i = 0; i < chartArray.length(); i++ ){
-			HashMap<String,String> chartMap = new HashMap<String,String>();
-			JSONObject chartObject = chartArray.getJSONObject(i);
-			System.out.println(chartObject.toString());
-			Iterator<String> it = chartObject.keys();
-			while(it.hasNext()){
-				String key = it.next();
-				String value = String.valueOf(chartObject.get(key));
-				chartMap.put(key, value);
+		if( Integer.parseInt(session("preference")) !=2 ){
+			JSONArray chartArray = response.getBody().getArray();
+			for( int i = 0; i < chartArray.length(); i++ ){
+				HashMap<String,String> chartMap = new HashMap<String,String>();
+				JSONObject chartObject = chartArray.getJSONObject(i);
+				System.out.println(chartObject.toString());
+				Iterator<String> it = chartObject.keys();
+				while(it.hasNext()){
+					String key = it.next();
+					String value = String.valueOf(chartObject.get(key));
+					chartMap.put(key, value);
+				}
+				chartList.add(chartMap);
 			}
-			chartList.add(chartMap);
+			
 		}
-		
-		
 		List<HashMap<String,String>> taskList = new ArrayList<HashMap<String,String>>();
 		JSONArray taskArray = project.getJSONArray("tasks");
 		int taskCount = taskArray.length();
@@ -383,7 +378,7 @@ public class UserController extends Controller{
 				break;
 				
 			case 3:
-				activityName = "XYZ";
+				activityName = "Card";
 				break;
 		}
 		return activityName;
